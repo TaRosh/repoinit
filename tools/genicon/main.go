@@ -1,5 +1,5 @@
-// genicon рисует иконку repoinit — «ночные врата и ключ»: красные тории
-// на фоне луны, звёзды и золотой ключ в проёме ворот (ключ = доступ через врата).
+// genicon рисует иконку repoinit — «ночные врата»: красные тории
+// на фоне луны и звёзды по углам.
 //
 // Фирменный концепт серии иконок описан в F:\style\icons\README.md.
 // Неизменны: скруглённый квадрат, геометрия тории, светило по центру,
@@ -33,8 +33,7 @@ var (
 	moonBot   = color.RGBA{0xf3, 0xd7, 0x8f, 255}
 	starColor = color.RGBA{0xff, 0xf1, 0xc4, 255}
 	toriiFill = color.RGBA{0xe2, 0x3d, 0x28, 255} // киноварь — классический цвет тории
-	outline   = color.RGBA{0x12, 0x0e, 0x1a, 255} // тёмная обводка ворот и ключа
-	keyFill   = color.RGBA{0xff, 0xc4, 0x3d, 255} // золото
+	outline   = color.RGBA{0x12, 0x0e, 0x1a, 255} // тёмная обводка ворот
 )
 
 // --- Фирменная геометрия (НЕ менять — это узнаваемость серии). ---
@@ -57,15 +56,6 @@ func inTorii(p pt) bool {
 		inRect(p, 0.45, 0.39, 0.55, 0.47) // гакудзука — табличка между балками
 }
 
-// --- Символ приложения: ключ в проёме ворот (между столбами, под нуки). ---
-
-func inKey(p pt) bool {
-	bow := inCircle(p, 0.5, 0.635, 0.072) && !inCircle(p, 0.5, 0.635, 0.032) // кольцо
-	shaft := inRect(p, 0.482, 0.69, 0.518, 0.84)
-	teeth := inRect(p, 0.518, 0.765, 0.565, 0.79) || inRect(p, 0.518, 0.808, 0.55, 0.835)
-	return bow || shaft || teeth
-}
-
 // Звёзды — четырёхлучевые искры вместо лепестков сакуры: {x, y, размер}.
 var stars = [][3]float64{
 	{0.17, 0.13, 0.055},
@@ -82,7 +72,7 @@ func inStar(p pt, cx, cy, s float64) bool {
 }
 
 // shade возвращает цвет точки и признак "внутри иконки".
-// Слои снизу вверх: небо → луна → звёзды → (обводка+)тории → (обводка+)ключ.
+// Слои снизу вверх: небо → луна → звёзды → (обводка+)тории.
 func shade(p pt, size int) (color.RGBA, bool) {
 	if !inBadge(p) {
 		return color.RGBA{}, false
@@ -101,10 +91,6 @@ func shade(p pt, size int) (color.RGBA, bool) {
 	// Толщина обводки — не тоньше ~1.4 пикселя, иначе на 16 px она исчезнет.
 	r := math.Max(0.026, 1.4/float64(size))
 	switch {
-	case inKey(p):
-		return keyFill, true
-	case near(p, r*0.8, inKey):
-		return outline, true
 	case inTorii(p):
 		return toriiFill, true
 	case near(p, r, inTorii):
