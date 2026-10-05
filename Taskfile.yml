@@ -1,0 +1,36 @@
+# Команды проекта: https://taskfile.dev  (установка: winget install Task.Task)
+version: '3'
+
+tasks:
+  default:
+    silent: true
+    cmds:
+      - task --list
+
+  test:
+    desc: Тесты логики в Linux-контейнере
+    cmds:
+      - docker compose run --rm dev go test -race ./internal/...
+
+  test-windows:
+    desc: Те же тесты, но нативно на Windows с настоящим Git for Windows
+    cmds:
+      - docker compose run --rm dev sh -c "for p in ghurl keys gitignore setup; do GOOS=windows CGO_ENABLED=0 go test -c -o bin/$p.test.exe ./internal/$p || exit 1; done"
+      - for: [ghurl, keys, gitignore, setup]
+        cmd: cd internal/{{.ITEM}} && ../../bin/{{.ITEM}}.test.exe -test.count=1
+
+  lint:
+    desc: Линтер (только internal/ — окну для анализа нужен cgo)
+    cmds:
+      - docker compose run --rm lint golangci-lint run ./internal/...
+
+  build:
+    desc: Собрать bin/repoinit.exe (первый раз ~5 минут — ставится MinGW)
+    cmds:
+      - docker compose run --rm windows go build -ldflags "-H=windowsgui -s -w" -o bin/repoinit.exe ./cmd/repoinit
+
+  run:
+    desc: Собрать и запустить
+    deps: [build]
+    cmds:
+      - ./bin/repoinit.exe

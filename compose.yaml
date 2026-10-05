@@ -1,0 +1,37 @@
+services:
+  # Тесты логики (пакеты internal/ — без GUI, cgo не нужен):
+  #   docker compose run --rm dev go test ./internal/...
+  dev:
+    image: golang:1.27
+    working_dir: /app
+    volumes:
+      - .:/app
+      - gomod:/go/pkg/mod
+      - gocache:/root/.cache/go-build
+
+  # Сборка repoinit.exe кросс-компилятором MinGW:
+  #   docker compose run --rm windows go build -ldflags "-H=windowsgui -s -w" -o bin/repoinit.exe ./cmd/repoinit
+  windows:
+    build:
+      context: .
+      dockerfile: build/windows.Dockerfile
+    image: repoinit-windows-build
+    working_dir: /app
+    volumes:
+      - .:/app
+      - gomod:/go/pkg/mod
+      - gocache-windows:/root/.cache/go-build
+
+  lint:
+    image: golangci/golangci-lint:v2.14.0
+    working_dir: /app
+    volumes:
+      - .:/app
+      - gomod:/go/pkg/mod
+      - lintcache:/root/.cache
+
+volumes:
+  gomod:
+  lintcache:
+  gocache:
+  gocache-windows:

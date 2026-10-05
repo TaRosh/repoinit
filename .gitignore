@@ -1,0 +1,11 @@
+# Ключи доступа к репозиторию (создаёт сама утилита)
+deploy_key
+deploy_key.pub
+
+# Артефакты сборки
+/bin/
+coverage.out
+
+# IDE
+.idea/
+.vscode/
