@@ -22,7 +22,7 @@ tasks:
   lint:
     desc: Линтер (только internal/ — окну для анализа нужен cgo)
     cmds:
-      - docker compose run --rm lint golangci-lint run ./internal/...
+      - docker compose run --rm lint golangci-lint run ./internal/... ./tools/...
 
   build:
     desc: Собрать bin/repoinit.exe (первый раз ~5 минут — ставится MinGW)
@@ -34,3 +34,8 @@ tasks:
     deps: [build]
     cmds:
       - ./bin/repoinit.exe
+
+  icon:
+    desc: Перегенерировать иконку (icon.png, icon.ico, ресурс exe) и превью bin/icon-preview.png
+    cmds:
+      - docker compose run --rm dev sh -c "mkdir -p bin && go run ./tools/genicon -preview bin/icon-preview.png && go run github.com/akavel/rsrc@v0.10.2 -ico cmd/repoinit/icon.ico -arch amd64 -o cmd/repoinit/rsrc_windows_amd64.syso"

@@ -4,6 +4,7 @@ package main
 
 import (
 	"context"
+	_ "embed"
 	"net/url"
 	"path/filepath"
 	"strings"
@@ -19,6 +20,13 @@ import (
 	"github.com/TaRosh/repoinit/internal/ghurl"
 	"github.com/TaRosh/repoinit/internal/setup"
 )
+
+// iconPNG — иконка окна. Иконку самого .exe в проводнике задаёт
+// rsrc_windows_amd64.syso (Go вшивает *.syso в бинарник автоматически).
+// Обе генерирует tools/genicon.
+//
+//go:embed icon.png
+var iconPNG []byte
 
 // prefBaseDir — папка, в которой лежат проекты (запоминается между запусками).
 const prefBaseDir = "baseDir"
@@ -47,6 +55,7 @@ type ui struct {
 
 func main() {
 	a := app.NewWithID("io.github.tarosh.repoinit")
+	a.SetIcon(fyne.NewStaticResource("icon.png", iconPNG))
 	u := &ui{app: a, win: a.NewWindow("Repo Init — deploy-ключ для GitHub")}
 	u.build()
 	u.win.Resize(fyne.NewSize(680, 560))
